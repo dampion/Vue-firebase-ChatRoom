@@ -1,0 +1,12 @@
+dampion-chatroom:
+  build: .
+  ports:
+    - "8080:8080"
+  volumes:
+    - .:/usr/app/:rw
+    - ~/.ssh/:/root/.ssh
+  # Before you run this file for the first time, make sure
+  # you remove node_modules/ folder in your host machine
+  command: >
+    sh -c 'npm run dev'
+ 
