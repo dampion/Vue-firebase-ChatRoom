@@ -11,14 +11,14 @@
           <div class="roomHead__button minimize"></div>
           <div class="roomHead__button zoom"></div>
         </div>
-        <img src="https://lorempixel.com/50/50/" class="roomHead__img" draggable="false">
-        <div class="roomHead__title">Test Room</div>
+        <img src="../assets/client.jpg" class="roomHead__img" draggable="false">
+        <div class="roomHead__title">Anonymous</div>
       </div>
       <div id="js-roomBody" class="roomBody">
         <template v-for="item in messages">
           <template v-if="item.userName != userName">
             <div class="messageBox">
-              <img src="https://lorempixel.com/40/40/" class="messageBox__user" draggable="false">
+              <img src="../assets/client.jpg" class="messageBox__user" draggable="false">
               <div class="messageBox__content">
                 <div class="messageBox__name">{{item.userName}}</div>
                 <div v-if="item.type == 'text'" class="messageBox__message">
@@ -70,7 +70,6 @@
           <input type="text" id="js-userName" class="userName" maxlength="6" @keydown.enter="saveName()" :value="userName">
           <div class="button" @click="saveName()">設定</div>
         </div>
-        <footer class="modal__footer"></footer>
       </div>
     </div>
   </div>
@@ -197,12 +196,14 @@ export default {
   margin: auto;
 }
 .container {
-  padding: 10px 30px 0px 0px;
+  width: 100%;
 }
 .name {
   text-align: center;
-  margin: 10px 50px 10px 0px;
+  margin: 10px 0px 30px 0;
   color: #333333;
+  text-align: center;
+  width: 100%;
 }
 .reset {
   margin-top: 10px;
@@ -226,6 +227,7 @@ export default {
   border-radius: 5px 5px 0px 0px;
   background-color: #2B364B;
   position: relative;
+  padding: 0 0 14px 0;
 }
 .roomHead__topButtons {
   padding: 2px 0px 5px 10px;
@@ -261,7 +263,7 @@ export default {
   font-weight: 600;
   color: #FFFFFF;
   height: 80px;
-  margin: 5px 0px 0px 75px;
+  margin: 15px 0px 0px 155px;
   position: absolute;
   cursor: pointer;
 }
@@ -461,6 +463,7 @@ export default {
   background-color: #fff;
   padding: 20px 50px;
   text-align: center;
+  border-radius: 0 0 5px 5px;
 }
 .modal__body p {
   text-align: left;
@@ -468,12 +471,6 @@ export default {
 }
 .modal__img {
   max-width: 100%;
-}
-.modal__footer {
-  color: #fff;
-  background-color: #2B364B;
-  height: 8px;
-  border-radius: 0px 0px 5px 5px;
 }
 /* name set */
 .userName {

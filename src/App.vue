@@ -1,6 +1,8 @@
 <template>
   <div id="app">
-    <img src="./assets/logo.png">
+    <keep-alive>
+      <h2>Vue ChatRoom with firebase</h2>
+    </keep-alive>
     <router-view/>
   </div>
 </template>
