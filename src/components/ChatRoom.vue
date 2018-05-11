@@ -23,7 +23,7 @@
                 <div class="messageBox__name">{{item.userName}}</div>
                 <div v-if="item.type == 'text'" class="messageBox__message">
                   <div class="messageBox__text">{{item.message}}</div>
-                  <div class="messageBox__readMore" @click="readMore($event)">顯示更多</div>
+                  <div class="messageBox__readMore" @click="readMore($event)">Show more</div>
                 </div>
                 <div v-if="item.type == 'image'" class="messageBox__image"><img :src="item.message"></div>
               </div>
@@ -64,11 +64,11 @@
     <div v-show="userNameSet || userName == ''" class="modal">
       <div class="modal__container">
         <header class="modal__header">
-          <h2 class="view-title">輸入名稱</h2>
+          <h2 class="view-title">Enter your ID</h2>
         </header>
         <div class="modal__body">
           <input type="text" id="js-userName" class="userName" maxlength="6" @keydown.enter="saveName()" :value="userName">
-          <div class="button" @click="saveName()">設定</div>
+          <div class="button" @click="saveName()">Save</div>
         </div>
       </div>
     </div>
@@ -486,9 +486,10 @@ export default {
   font-size: 14px;
   color: #FFFFFF;
   background-color: #2B364B;
-  padding: 10px 20px;
+  padding: 10px 40px;
   display: inline-block;
   cursor: pointer;
+  border-radius: 40px;
 }
 /* media */
 @media screen and (max-width: 425px) {
