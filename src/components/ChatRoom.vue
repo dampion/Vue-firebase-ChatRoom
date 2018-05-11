@@ -1,8 +1,9 @@
 <template>
   <div class="container">
+    <icon name="close"></icon>
     <div class="name">
       <h3>Name：{{ userName }}</h3>
-      <div class="reset" @click="setName()">Reset Name</div>
+      <!-- <div class="reset" @click="setName()">Reset Name</div> -->
     </div>
     <div class="chatRoom">
       <div class="roomHead">
@@ -90,16 +91,18 @@ export default {
     }
   },
   methods: {
-    setName() {
-      const vm = this;
-      vm.userNameSet = true;
-    },
+    // change player name
+    // setName() {
+    //   const vm = this;
+    //   vm.userNameSet = true;
+    // },
     saveName() {
       const vm = this;
       const userName = document.querySelector('#js-userName').value;
       if (userName.trim() == '') { return; }
       vm.userName = userName;
       vm.userNameSet = false;
+      localStorage.setItem('userName', userName);
     },
     getTime() {
       const now = new Date();
@@ -176,6 +179,9 @@ export default {
       const val = snapshot.val();
       vm.messages = val;
     })
+    if (localStorage.getItem('userName') !== null) {
+      vm.userName = localStorage.getItem('userName');
+    }
   },
   updated() {
     const messages = document.querySelectorAll('.messageBox__message');
@@ -276,8 +282,9 @@ export default {
   overflow-x: hidden;
 }
 .messageBox {
-  padding: 5px 10px;
+  padding: 8px 20px;
   position: relative;
+  text-align: left;
 }
 .messageBox__user {
   height: 40px;
