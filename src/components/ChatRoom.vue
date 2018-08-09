@@ -1,16 +1,21 @@
 <template>
   <div class="container">
-    <icon name="close"></icon>
     <div class="name">
       <h3>Name：{{ userName }}</h3>
       <!-- <div class="reset" @click="setName()">Reset Name</div> -->
     </div>
-    <div class="chatRoom">
+    <div class="chatRoom" :class="{chatRoom__Room: Zoom}">
       <div class="roomHead">
         <div class="roomHead__topButtons">
-          <div class="roomHead__button close"></div>
-          <div class="roomHead__button minimize"></div>
-          <div class="roomHead__button zoom"></div>
+          <div class="roomHead__button close"  @mouseover="showZoom" @mouseout="noshowZoom" @click="dialogVisible = true">
+            <i class="el-icon-close closeMark" :class="{hoverImg: ZoomImg}"></i>
+          </div>
+          <div class="roomHead__button minimize" @mouseover="showZoom" @mouseout="noshowZoom" @click="minimizeChatRoom">
+            <i class="el-icon-minus minimizeMark" :class="{hoverImg: ZoomImg}"></i>
+          </div>
+          <div class="roomHead__button zoom"  @mouseover="showZoom" @mouseout="noshowZoom" @click="zoomChatRoom">
+            <i class="el-icon-d-caret zoomMark" :class="{hoverImg: ZoomImg}"></i>
+          </div>
         </div>
         <img src="../assets/client.jpg" class="roomHead__img" draggable="false">
         <div class="roomHead__title">Anonymous</div>
@@ -73,6 +78,17 @@
         </div>
       </div>
     </div>
+    <el-dialog
+      title="Hint"
+      :visible.sync="dialogVisible"
+      width="30%"
+      :before-close="handleClose">
+      <span>Are you sure to leave?</span>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="dialogVisible = false">Cancel</el-button>
+        <el-button type="primary" @click="leaveTheChatRoom">Yes</el-button>
+      </span>
+    </el-dialog>
   </div>
 </template>
 
@@ -87,7 +103,10 @@ export default {
       userName: '',
       messages: [],
       upload: false, 
-      progress: ''
+      progress: '',
+      ZoomImg: false,
+      Zoom: false,
+      dialogVisible: false,
     }
   },
   methods: {
@@ -171,6 +190,30 @@ export default {
     readMore(e) {
       e.target.previousElementSibling.setAttribute('style', 'max-height: 100%;')
       e.target.setAttribute('style', 'display: none;');
+    },
+    showZoom() {
+      this.ZoomImg = true;
+    },
+    noshowZoom() {
+      this.ZoomImg = false;
+    },
+    zoomChatRoom() {
+      this.Zoom = true;
+    },
+    minimizeChatRoom() {
+      this.Zoom = false;
+    },
+    leaveTheChatRoom() {
+      this.dialogVisible = false;
+      let closeWindow=window.open("","_self");
+      closeWindow.close();
+    },
+    handleClose(done) {
+      this.$confirm('Are you sure to leave?')
+        .then(_ => {
+          done();
+        })
+        .catch(_ => {});
     }
   },
   mounted() {
@@ -204,6 +247,17 @@ export default {
 .container {
   width: 100%;
 }
+.zoomMark, .closeMark, .minimizeMark {
+  font-size: 12px;
+  display: none;
+}
+.container >>> .el-icon-close:before, .container >>> .el-icon-d-caret:before, .container >>> .el-icon-minus:before {
+  position: relative;
+  top: -5.5px;
+}
+.hoverImg {
+  display: initial;
+}
 .name {
   text-align: center;
   margin: 10px 0px 30px 0;
@@ -226,6 +280,12 @@ export default {
   max-width: 500px;
   box-shadow: 0 14px 28px rgba(0, 0, 0, 0.25), 0 10px 10px rgba(0, 0, 0, 0.22);
 }
+.chatRoom__Room {
+  width: 100%;
+  max-width: none;
+  -webkit-transition: width 2s; /* Safari */
+  transition: width 2s;
+}
 /* Head */
 .roomHead {
   width: 100%;
@@ -236,14 +296,15 @@ export default {
   padding: 0 0 14px 0;
 }
 .roomHead__topButtons {
-  padding: 2px 0px 5px 10px;
-  text-align: left;
+  display: flex;
+  padding: 10px 0px 0px 10px;
+  /*text-align: left;*/
 }
 .roomHead__button {
-  height: 10px;
-  width: 10px;
+  height: 13px;
+  width: 13px;
   border-radius: 50%;
-  margin: 0px 1px;
+  margin: 0px 3px;
   display: inline-block;
   cursor: pointer;
 }
