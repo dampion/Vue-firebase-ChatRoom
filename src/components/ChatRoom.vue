@@ -36,7 +36,7 @@
               <div class="messageBox__time">{{item.timeStamp}}</div>
             </div>
           </template>
-          <template v-if="item.userName == userName">
+          <template v-if="item.userName == userName && userLogin">
             <div class="messageBox messageBox--self">
               <div class="messageBox__time">{{item.timeStamp}}</div>
               <div class="messageBox__content">
@@ -67,14 +67,21 @@
         </div>
       </div>
     </div>
-    <div v-show="userNameSet || userName == ''" class="modal">
+    <div v-show="userNameSet" class="modal">
       <div class="modal__container">
         <header class="modal__header">
-          <h2 class="view-title">Enter your ID</h2>
+          <h2 class="view-title">Enter your Info</h2>
         </header>
         <div class="modal__body">
-          <input type="text" id="js-userName" class="userName" maxlength="6" @keydown.enter="saveName()" :value="userName">
-          <div class="button" @click="saveName()">Save</div>
+          <div class="modal_input_box">
+            <label>UserName</label>
+            <input type="text" id="js-userName" class="userName" maxlength="6" @keydown.enter="saveName(IdNumber)" v-model="userName">
+          </div>
+          <div class="modal_input_box">
+            <label>ID Number</label>
+            <input type="text" id="js-userIdNumber" class="IdNumber" maxlength="10" v-model="IdNumber">
+          </div>
+          <div class="button" @click="saveName(IdNumber)">Save</div>
         </div>
       </div>
     </div>
@@ -94,12 +101,13 @@
 
 <script>
 const msgRef = firebase.database().ref('/messages/');
+const memData = firebase.database().ref('/memData/');
 const storageRef = firebase.storage().ref('/images/');
 export default {
   name: 'ChatRoom',
   data() {
     return {
-      userNameSet: false,
+      userNameSet: true,
       userName: '',
       messages: [],
       upload: false, 
@@ -107,6 +115,10 @@ export default {
       ZoomImg: false,
       Zoom: false,
       dialogVisible: false,
+      IdNumber: '',
+      userLogin: false,
+      userNameList: '',
+      idNumberList: ''
     }
   },
   methods: {
@@ -115,13 +127,40 @@ export default {
     //   const vm = this;
     //   vm.userNameSet = true;
     // },
-    saveName() {
-      const vm = this;
-      const userName = document.querySelector('#js-userName').value;
-      if (userName.trim() == '') { return; }
-      vm.userName = userName;
-      vm.userNameSet = false;
-      localStorage.setItem('userName', userName);
+    saveName(IdNumber) {
+      let vm = this;
+      if (IdNumber.length !== 10) {
+        window.alert("Something wrong with your ID number.");
+        return false;
+      }
+      if (vm.userName.trim() == '') { return; }
+      localStorage.setItem('userName', vm.userName);
+      const checkUserName = vm.userNameList.findIndex(
+        (item) => {
+          return (item == vm.userName);
+        });
+      const checkNumberList = vm.idNumberList.findIndex(
+        (item) => {
+          return (item == IdNumber);
+        });
+      const checkRegistered = (checkUserName === -1 && checkNumberList === -1); 
+      const checkLogin = (checkUserName === checkNumberList && checkNumberList !== -1);
+
+      if (checkRegistered) {
+        memData.push({
+          userName: vm.userName,
+          type: 'text',
+          idNumber: IdNumber
+          // timeStamp: vm.getTime()
+        });
+        vm.userNameSet = false;
+        vm.userLogin = true;
+      } else if (checkLogin){
+        vm.userNameSet = false;
+        vm.userLogin = true;
+      } else {
+        window.alert("the userName or the ID Number is used.");
+      }      
     },
     getTime() {
       const now = new Date();
@@ -131,7 +170,6 @@ export default {
     },
     sendMessage(e) {
       const vm = this;
-      const userName = document.querySelector('#js-userName');
       let message = document.querySelector('#js-message');
       if (e.shiftKey) {
         return false;
@@ -141,7 +179,7 @@ export default {
         return false;
       }
       msgRef.push({
-        userName: userName.value,
+        userName: this.userName,
         type: 'text',
         message: message.value,
         timeStamp: vm.getTime()
@@ -151,7 +189,6 @@ export default {
     },
     sendImage(e) {
       const vm = this;
-      const userName = document.querySelector('#js-userName');
       const file = e.target.files[0];
       const fileName = Math.floor(Date.now() / 1000) + `_${file.name}`;
       const metadata = {
@@ -170,7 +207,7 @@ export default {
         },
         function(error) {
           msgRef.child('bug/').push({
-            userName: userName.value,
+            userName: this.userName,
             type: 'image',
             message: error.code,
             timeStamp: vm.getTime()
@@ -179,11 +216,11 @@ export default {
         function() {
           var downloadURL = uploadTask.snapshot.downloadURL;
           msgRef.push({
-            userName: userName.value,
+            userName: this.userName,
             type: 'image',
             message: downloadURL,
             timeStamp: vm.getTime()
-          })
+          });
           vm.upload = false;
         });
     },
@@ -222,8 +259,14 @@ export default {
       const val = snapshot.val();
       vm.messages = val;
     })
+    memData.on('value', function(snapshot) {
+      const val = snapshot.val();
+      vm.userNameList = Object.values(val).map(item => item.userName);
+      vm.idNumberList = Object.values(val).map(item => item.idNumber); 
+    })
     if (localStorage.getItem('userName') !== null) {
-      vm.userName = localStorage.getItem('userName');
+      vm.userNameSet = false;
+      vm.userLogin = true;
     }
   },
   updated() {
@@ -529,7 +572,7 @@ export default {
 }
 .modal__body {
   background-color: #fff;
-  padding: 20px 50px;
+  padding: 20px 25px;
   text-align: center;
   border-radius: 0 0 5px 5px;
 }
@@ -540,8 +583,18 @@ export default {
 .modal__img {
   max-width: 100%;
 }
+.modal_input_box {
+  display: flex;
+  flex-wrap: nowrap;
+}
+.modal_input_box label {
+  font-size: 14px;
+  margin: 0;
+  padding: 8px 6px 0 0;
+  min-width: 111px;
+}
 /* name set */
-.userName {
+.userName, .IdNumber {
   height: 30px;
   font-size: 16px;
   margin-bottom: 10px;
