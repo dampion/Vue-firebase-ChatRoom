@@ -7,7 +7,7 @@
     <div class="chatRoom" :class="{chatRoom__Room: Zoom}">
       <div class="roomHead">
         <div class="roomHead__topButtons">
-          <div class="roomHead__button close"  @mouseover="showZoom" @mouseout="noshowZoom" @click="dialogVisible = true">
+          <div class="roomHead__button close"  @mouseover="showZoom" @mouseout="noshowZoom" @click="closeAndLogout">
             <i class="el-icon-close closeMark" :class="{hoverImg: ZoomImg}"></i>
           </div>
           <div class="roomHead__button minimize" @mouseover="showZoom" @mouseout="noshowZoom" @click="minimizeChatRoom">
@@ -18,7 +18,7 @@
           </div>
         </div>
         <img src="../assets/client.jpg" class="roomHead__img" draggable="false">
-        <div class="roomHead__title">Anonymous</div>
+        <div class="roomHead__title">NBA Players</div>
       </div>
       <div id="js-roomBody" class="roomBody">
         <template v-for="item in messages">
@@ -89,7 +89,8 @@
       title="Hint"
       :visible.sync="dialogVisible"
       width="30%"
-      :before-close="handleClose">
+      :before-close="handleClose"
+    >
       <span>Are you sure to leave?</span>
       <span slot="footer" class="dialog-footer">
         <el-button @click="dialogVisible = false">Cancel</el-button>
@@ -103,12 +104,13 @@
 const msgRef = firebase.database().ref('/messages/');
 const memData = firebase.database().ref('/memData/');
 const storageRef = firebase.storage().ref('/images/');
+
 export default {
   name: 'ChatRoom',
   data() {
     return {
       userNameSet: true,
-      userName: '',
+      userName: localStorage.getItem('userName'),
       messages: [],
       upload: false, 
       progress: '',
@@ -251,6 +253,10 @@ export default {
           done();
         })
         .catch(_ => {});
+    },
+    closeAndLogout() {
+      this.dialogVisible = true;
+      localStorage.setItem('userName', '');
     }
   },
   mounted() {
@@ -264,7 +270,8 @@ export default {
       vm.userNameList = Object.values(val).map(item => item.userName);
       vm.idNumberList = Object.values(val).map(item => item.idNumber); 
     })
-    if (localStorage.getItem('userName') !== null) {
+    if (localStorage.getItem('userName')) {
+      console.log(localStorage.getItem('userName'));
       vm.userNameSet = false;
       vm.userLogin = true;
     }
@@ -278,7 +285,7 @@ export default {
     })
     const roomBody = document.querySelector('#js-roomBody');
     roomBody.scrollTop = roomBody.scrollHeight;
-  }
+  },
 }
 </script>
 
